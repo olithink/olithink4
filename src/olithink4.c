@@ -1,4 +1,4 @@
-/* OliThink 4.1.1 - Bitboard Version (c) Oliver Brausch 19.Sep.2003, ob112@web.de */
+/* OliThink 4.1.3 - Bitboard Version (c) Oliver Brausch 11.Feb.2003, ob112@web.de */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,9 +52,9 @@ void rookmoves(int, int, int, int);
 #define KIN_B 13
 #define EMPTY 14
 
-const char piece_char[16] = "**PpNnBbRrQqKk  ";
-const int piece_val[16] = {100,-100,100,-100,300,-300,310,-310,490,-490,+900,-900,+25000,-25000,0,0};
-const int pos_val[16] = {10,-10,10,-10,6,-6,8,-8,4,-4,1,-1,5,-5,0,0};
+const char piece_char[] = "**PpNnBbRrQqKk  ";
+const int piece_val[] = {100,-100,100,-100,300,-300,310,-310,490,-490,+900,-900,+25000,-25000,0,0};
+const int pos_val[] = {10,-10,10,-10,6,-6,8,-8,4,-4,1,-1,5,-5,0,0};
 
 #define FROM(x) ((x) & 0x3F)
 #define TO(x) (((x) >> 6) & 0x3F)
@@ -81,13 +81,13 @@ const int pos_val[16] = {10,-10,10,-10,6,-6,8,-8,4,-4,1,-1,5,-5,0,0};
 u64 DirA[10][64], Bef[2][8][64];
 u64 NeiB[64], NeiR[64], LineT[64], LineD[64], LineS[64];
 
-const int PAWN[2]={PAW_W,PAW_B};
-const int BISHOP[2]={BIS_W,BIS_B};
-const int KNIGHT[2]={KNI_W,KNI_B};
-const int ROOK[2]={ROO_W,ROO_B};
-const int QUEEN[2]={QUE_W,QUE_B};
-const int KING[2]={KIN_W,KIN_B};
-const int ENPAS[2]={ENP_W,ENP_B};
+const int PAWN[]={PAW_W,PAW_B};
+const int BISHOP[]={BIS_W,BIS_B};
+const int KNIGHT[]={KNI_W,KNI_B};
+const int ROOK[]={ROO_W,ROO_B};
+const int QUEEN[]={QUE_W,QUE_B};
+const int KING[]={KIN_W,KIN_B};
+const int ENPAS[]={ENP_W,ENP_B};
 int kingpos[2];
 int board[64];
 
@@ -126,7 +126,7 @@ int knightmobil[64];
 int kingmobil[64];
 int hitval[16][16];
 
-const int r045map[64] = { 
+const int r045map[] = { 
 28,36,43,49,54,58,61,63,
 21,29,37,44,50,55,59,62,
 15,22,30,38,45,51,56,60,
@@ -137,7 +137,7 @@ const int r045map[64] = {
  0, 2, 5, 9,14,20,27,35
 };
 
-const int _r045shift[64] = {
+const int _r045shift[] = {
 28,36,43,49,54,58,61,63,
 21,28,36,43,49,54,58,61,
 15,21,28,36,43,49,54,58,
@@ -148,7 +148,7 @@ const int _r045shift[64] = {
  0, 1, 3, 6,10,15,21,28
 };
 
-const int r045length[64] = { 
+const int r045length[] = { 
 8,7,6,5,4,3,2,1,
 7,8,7,6,5,4,3,2,
 6,7,8,7,6,5,4,3,
@@ -159,7 +159,7 @@ const int r045length[64] = {
 1,2,3,4,5,6,7,8 
 };
 
-const int pawnpos[64] = {
+const int pawnpos[] = {
 9,9,9,9,9,9,9,9,
 8,8,8,8,8,8,8,8,
 6,6,6,6,6,6,6,6,
@@ -170,14 +170,14 @@ const int pawnpos[64] = {
 0,0,0,0,0,0,0,0
 };
 
-int kingmoves[9] = {8,-9,-1,7,8,9,1,-7,-8};
-int knightmoves[9] = {8,-17,-10,6,15,17,10,-6,-15};
-int pawnwcaps[3] = {2,7,9};
-int pawnbcaps[3] = {2,-9,-7};
-int pawnwmoves[2] = {1,8};
-int pawnbmoves[2] = {1,-8};
-int pawnwfmove[3] = {2,8,16};
-int pawnbfmove[3] = {2,-8,-16};
+int kingmoves[] = {8,-9,-1,7,8,9,1,-7,-8};
+int knightmoves[] = {8,-17,-10,6,15,17,10,-6,-15};
+int pawnwcaps[] = {2,7,9};
+int pawnbcaps[] = {2,-9,-7};
+int pawnwmoves[] = {1,8};
+int pawnbmoves[] = {1,-8};
+int pawnwfmove[] = {2,8,16};
+int pawnbfmove[] = {2,-8,-16};
 int runto[64][64];
 int direction[64][64];
 int pawn_val[64][2];
@@ -222,7 +222,7 @@ int nstack;
 int neval;
 int nodes;
 int material;
-int mytime;
+int mytime, inc, tfac;
 int sd;
 int nps;
 int machine;
@@ -333,6 +333,7 @@ void init_arrays() /* precomputing stuff */
 	if (!hashREC || !pawnREC) { printf("NO MEMORY\n"); exit(1); }
 
 	memset(hashREC, 0, sizeof(hashREC));
+	memset(pawnREC, 0, sizeof(pawnREC));
 	memset(aSrtAttack, 0, sizeof(aSrtAttack));
 	memset(hashstack, 0, sizeof(hashstack));
 	memset(hitval, 0, sizeof(hitval));
@@ -656,7 +657,7 @@ u64 attackbit(int i) {
 	((A045(i) | A135(i)) & QuBi);
 }
 
-#define _PTATT(a, p) {int n = LSB(a & R000BitB[p]); a ^= _r000m[n]; att[na++] = n | ((p) << 12);}
+#define _PTATT(a, p) {int n = LSB(a & R000BitB[p]); a ^= _r000m[n]; if (na > 8) printf(" NAX: %d\n",na); att[na++] = n | ((p) << 12);}
 
 int addattack(int i, int c, int apawn) {
 	int na = 0;
@@ -1080,7 +1081,7 @@ int lookUpH(int depth, int *w, Move *move) {
 	HashREC *h = hashREC + (hashBoard & hashMask);
 	if (h->rec != hashBoard && (++h)->rec != hashBoard) return 0;
 	*move = h->move;
-	if (h->depth == depth) {
+	if (h->depth >= depth) {
 		*w = h->w;
 		return h->flag;
 	}
@@ -1206,17 +1207,17 @@ Move pick(int ply, int n) {
 	return move;
 }
 
-int search(int on_move, int ply, int depth, int alpha, int beta, int do_null)
+int search(int on_move, int ply, int depth, int alpha, int beta, int do_null, int iid)
 { 
 	int n, i, j, w, c, hflag, nolegal;
 	Move bestmove = 0, move = 0;
 
 	if ((++nodes & 0x1fff) == 0) { 
 		if (bioskey()) inputmove(pmove ? ONMOVE(pmove) : COL_N);
-		if (!pmove && (nodes*10)/nps*250 > mytime) { sabort = 1; return alpha; }
+		if (!pmove && (nodes*10)/nps*tfac > mytime) { sabort = 1; return alpha; }
 	}
 	
-	if (ply && depth && checkfordraw(1)) return 0;
+	if (!iid && ply && depth && checkfordraw(1)) return 0;
 	pvlength[ply] = ply;
 
 	c = attacked(kingpos[on_move], on_move);
@@ -1224,15 +1225,32 @@ int search(int on_move, int ply, int depth, int alpha, int beta, int do_null)
 	else if (nstack && IS_PROM(movestack[nstack-1])) depth++;
 	if (depth < 0) depth = 0;
 
-	hflag = lookUpH(depth, &w, &move);
-	if (ply && hflag) {
-		if (hflag == 1) if (w >= beta) return beta;
-		if (hflag == 2) { do_null = 0; if (w < alpha) return alpha; }
+	if (!iid) {
+		hflag = lookUpH(depth, &w, &move);
+		if (ply && hflag) {
+			if (hflag == 1) if (w >= beta) return beta;
+			if (hflag == 2) { do_null = 0; if (w < alpha) return alpha; }
+			if (hflag == 4) return w;
+		}
 	}
+
+    /* ----------====    DC : INTERNAL ITERATIVE DEEPENING ====----------- */
+    /* If we're not doing a NULL move and we don't have a hash move and we're
+     * at least 3 ply away from the quiescence search, then try to get a good
+     * guess for the best move by doing a shallower search from here. */
+    if (depth >= 3 && !do_null) {
+        w = search(on_move, ply, depth - 2, alpha, beta, 0, 1);
+        /* Re-search properly if the previous search failed low, so that we
+         * know we're getting a good move, not just the move with the highest
+         * upper bound (which is essentially random and depends on the search
+         * order.) */
+        if (w <= alpha)
+            w = search(on_move, ply, depth - 2, -32500, alpha + 1, 0, 1);
+    }
 
 	if (!c && do_null && depth && ply && bitcount(R000BitB[on_move] & (~R000BitB[PAWN[on_move]])) > 3) {
 		donullmove();
-		w = -search(on_move^1, ply+1, depth - 3 - (depth > 5), -beta, -beta + 1, 0);
+		w = -search(on_move^1, ply+1, depth - 3 - (depth > 5), -beta, -beta + 1, 0, 0);
 		undonullmove();
 		if (w >= beta) {
 			storeH(0, depth, w, 1);
@@ -1263,6 +1281,7 @@ int search(int on_move, int ply, int depth, int alpha, int beta, int do_null)
 			else n = generate_moves(on_move, ply, 0);
 
 			if (i == 1) {
+					if (n == 1) break;
 					for (j = 0; j < n; j++) {
 						if (IDENTMV(movelist[j][ply], hashmv[ply])) {
 							movelist[j][ply] = movelist[n-1][ply];
@@ -1277,7 +1296,7 @@ int search(int on_move, int ply, int depth, int alpha, int beta, int do_null)
 
 		domove(move);
 		if (!c && attacked(kingpos[on_move], on_move)) { undomove(); continue;}
-		w = -search(on_move^1, ply+1, depth-1, -beta, -alpha, 1);
+		w = -search(on_move^1, ply+1, depth-1, -beta, -alpha, 1, 0);
 		if (nolegal) nolegal=0;
 		undomove();
 		if (sabort) break;
@@ -1397,7 +1416,9 @@ void parsePGN() {
 				if (!strncmp(inbuf, "\"0-1\"", 5)) break;
 				if (nstack == -1 && !strncmp(inbuf, "1.", 2)) init_board(boardStr);
 				if (nstack >= 0) {
-				   fscanf(fpgn, "%s", inbuf);
+				   char *p = strchr(inbuf, '.') + 1;
+				   if (p == (char*)1 || *p == 0) fscanf(fpgn, "%s", inbuf);
+				   else strcpy(inbuf, p);
 				   move = parseMove(inbuf, COL_W, 0); 
 				   if (!move) break;
 				   if (bcolor == COL_W) storeH(move, 99, 0, 8);
@@ -1418,7 +1439,7 @@ void parsePGN() {
 
 int calcmove(int on_move)
 {
-    Move move; int n = 0, w, ms, depth = 0, alpha, beta;
+    Move move; int n = 0, w, ms, me, depth = 0, alpha, beta;
 	nodes = neval = sabort = 0;
 	ms = get_time();
 	memset(history, 0, sizeof(history));
@@ -1426,17 +1447,18 @@ int calcmove(int on_move)
 	beta = 32500;
 	pv[0][0] = 0;
 
+	if (pmove) on_move ^= 1;
 	if (pmove || lookUpH(99, &n, &move) != 8) move = 0; 
 	switch (generate_legal_moves(on_move, 62)) {
 		case 0: return inputmove(on_move);
-		case 1:< if (!pmove) move = movelist[0][62];
+		case 1: if (!pmove) move = movelist[0][62];
 	}
 
 	if (!move) for (depth = 1; depth <= sd; depth++) {
 
-		w = search(on_move, 0, depth, alpha, beta, 1);
-		if (w >= beta) w = search(on_move, 0, depth, w - 100, 32500, 1);
-		if (w <= alpha) w = search(on_move, 0, depth, -32500, w + 100, 1);
+		w = search(on_move, 0, depth, alpha, beta, 1, 0);
+		if (w >= beta) w = search(on_move, 0, depth, w - 100, 32500, 1, 0);
+		if (w <= alpha) w = search(on_move, 0, depth, -32500, w + 100, 1, 0);
 		if (sabort && pvlength[0] == 0) break; else n = w;
 
 		alpha = n - 70;
@@ -1451,15 +1473,16 @@ int calcmove(int on_move)
 			displaypv(); printf("\n");
 		}
 		fflush(stdout);
-		if (sabort || (!pmove && (nodes*10)/nps*800 > mytime)) break;
+		me = get_time() - ms;
+		if (me && nodes) nps = nodes/me * 1000;
+		if (sabort || (!pmove && (nodes*25)/nps*tfac > mytime)) break;
 	}
-	ms = get_time() - ms;
-	if (ms<2) ms=2;
-
 	while (pmove && !sabort) inputmove(ONMOVE(pmove));
+	me = get_time() - ms;
+	if (me && nodes) nps = nodes/me * 1000;
 
 	if (icmd) {
-		if (pmove && icmd < 7) { undomove(); return on_move^1; }
+		if (pmove && icmd < 8) { if (icmd < 7) undomove(); return on_move^1; }
 		return on_move;
 	}
 
@@ -1475,9 +1498,8 @@ int calcmove(int on_move)
 	displaym(move); printf("\n");
 	fflush(stdout);
 	
-	if (nodes) nps = nodes/ms * 1000 + 1;
 	printf("%s %d(%d) %d nds %d nps %d ms %d evs\n", comp ? "kibitz" : "whisper", 
-		n, depth, nodes, nps, ms, neval);
+		n, depth, nodes, nps, me, neval);
 
 	if (!xboard) displayb();
 
@@ -1532,7 +1554,7 @@ int inputmove(int on_move)
 		if (!strncmp(buf,"protover",8)) nm = 1;
 		if (!strncmp(buf,"accepted",8)) nm = 1;
 		if (!strncmp(buf,"random",6)) nm = 1;
-		if (!strncmp(buf,"level",5)) nm = 1;
+		if (!strncmp(buf,"level",5)) { sscanf(buf+6,"%*d %*d %d",&inc); tfac = 2560/(8+inc); nm = 1; }
 		if (!strncmp(buf,"otim",4)) nm = 1;
 		if (!strncmp(buf,"result",6)) nm = 1;
 		if (!strncmp(buf,"name",4)) nm = 1;
@@ -1577,25 +1599,26 @@ int inputmove(int on_move)
 int main()
 {
 	int on_move;
-	printf("Chess - OliThink 4.1.1\n");
+	printf("Chess - OliThink 4.1.3\n");
 	signal(SIGINT, SIG_IGN);
 	init_arrays();
 
 	parsePGN();
 	sd = 40;
 	mytime = 18000;
+	tfac = 320;
 	on_move = init_board(boardStr);
 	nps = 100000;
 
     while (nstack < 950) { icmd = 0;
-		if (on_move == machine) on_move = calcmove(on_move);
-		else on_move = pmove ? calcmove(on_move^1) : inputmove(on_move);
+		if (on_move == machine || pmove) on_move = calcmove(on_move);
+		else on_move = inputmove(on_move);
 
 		if (icmd) on_move = inputmove(on_move);
 
 		switch (checkfordraw(0)) {
-			case 1: printf("draw\nDrawn by repitition!\n"); break;
-			case 2: printf("draw\nDrawn by 50 moves rule!\n");
+			case 1: printf("1/2-1/2 {Draw by Repetition}\n"); break;
+			case 2: printf("1/2-1/2 {Draw by Fifty Move Rule}\n");
 		}
 		fflush (stdout);
 	}	

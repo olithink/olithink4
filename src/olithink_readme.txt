@@ -1,4 +1,4 @@
-/* OliThink 4.1.1 - Bitboard Version (c) Oliver Brausch 19. Sep. 2003, ob112@web.de */
+/* OliThink 4.1.3 - Bitboard Version (c) Oliver Brausch 11. Feb. 2004, ob112@web.de */
 
 Featured: 
 Book support (reads standard pgn-file "book.pgn" in the same folder)
@@ -7,6 +7,7 @@ Nullmove
 Ponder next move
 16 MB Hashtables (edit source to change)
 Analyze Mode
+Java Version available
 
 Supported Winboard Commands:
 ? (move now)

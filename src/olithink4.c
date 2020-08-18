@@ -621,7 +621,7 @@ void displaypv() {
 }
 
 int LSB (u64 bit) {
-	u32 n = (u32) bit;
+	u32 n = (u32) bit & 0xffffffff;
 	if (n) {
 		if (n & 0xffff) return _LSB[n & 0xffff];
 		else return 16 + _LSB[(n >> 16) & 0xffff];

@@ -598,8 +598,8 @@ void display64(u64 bit) {
 }
 
 void displaym(Move move) {
-	printf("%c%c%c%c%c", 'a' + FROM(move) % 8, '1' + FROM(move) / 8,
-		P_TO(move) == EMPTY ? '-' : 'x', 'a' + TO(move) % 8, '1' + TO(move) / 8);
+	printf("%c%c%c%c", 'a' + FROM(move) % 8, '1' + FROM(move) / 8,
+		'a' + TO(move) % 8, '1' + TO(move) / 8);
 	if (PIECE(move) != PROMOTE(move)) printf("%c", piece_char[PROMOTE(move) | 1]);
 }
 
@@ -1518,7 +1518,7 @@ int inputmove(int on_move)
 		if (!strncmp(buf,"c",1) && iedit != COL_N) iedit = COL_B;
 		if (strlen(buf) < 2) return on_move;
 		
-		if (!strncmp(buf,"xboard",6)) { xboard = 1; printf("feature done=1\n"); return on_move; }
+		if (!strncmp(buf,"xboard",6)) { xboard = 1; printf("feature myname=\"OliThink 4.1.1\" done=1\n"); return on_move; }
 		if (!strncmp(buf,"quit",4)) exit(0);
 		if (!strncmp(buf,"time",4)) { sscanf(buf+5,"%d",&mytime); nm = 1; }
 		if (!strncmp(buf,"hint", 4)) { printf("Hint: "); displaym(pmove); printf("\n"); fflush(stdout); return on_move; }

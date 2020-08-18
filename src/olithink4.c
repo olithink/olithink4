@@ -1429,7 +1429,7 @@ int calcmove(int on_move)
 	if (pmove || lookUpH(99, &n, &move) != 8) move = 0; 
 	switch (generate_legal_moves(on_move, 62)) {
 		case 0: return inputmove(on_move);
-		case 1:< if (!pmove) move = movelist[0][62];
+		case 1: if (!pmove) move = movelist[0][62];
 	}
 
 	if (!move) for (depth = 1; depth <= sd; depth++) {
